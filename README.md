@@ -5,4 +5,4 @@ pip install pandas
 pip install openpyxl  
 pip install xlrd
 ## Execute
-cmd: python excelTransform.py
+python excelTransform.py
