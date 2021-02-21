@@ -107,6 +107,8 @@ for work_item in range (0,len(files_csv)):
     # 儲存成 create_sample.xls 檔案
     wb.save('tmp.xls')
     data_xls = pd.read_excel('tmp.xls',index_col=None)
+    if('.csv' in files_csv[work_item]):
+        files_csv[work_item] = files_csv[work_item][:-4]
     data_xls.to_csv(files_csv[work_item]+'_排列.csv', encoding='utf-8',sep=',',index=False,header=None)
     os.remove('tmp.xls')
     work_item = work_item + 1
