@@ -37,76 +37,60 @@ for work_item in range (0,len(files_csv)):
     ws.cell(row = 1, column = 1, value = "test")
     print('---------- assign title and initialize value ----------')
     # assign title and initialize value
+    #for i in range(1,len(sheet.values)+1):
+    #    print('processing row:'+ str(i))
+    #    if ((i%3) == 1):
+    #        for j in range (0,4):
+    #            ws.cell(row = i+1, column = j+1, value = sheet.values[i-1][j])
+    title_row=3
+    for j in range(0,110):
+        if(j<24):
+            ws.cell(row = 2, column = j+5, value = varientNames[j])
+        else:
+            ws.cell(row = 2, column = j+5, value = binNames[j-24])
     for i in range(1,len(sheet.values)+1):
-        if ((i%3) == 1):
-            for j in range (0,4):
-                ws.cell(row = i+1, column = j+1, value = sheet.values[i-1][j])
-    for i in range(1,len(sheet.values)+1):
+        print('processing row:'+ str(i))
         for j in range(0,110):
             if((i%3) == 1):
-                if(j<24):
-                    ws.cell(row = i+1, column = j+5, value = varientNames[j])
+                if(j<4):
+                    ws.cell(row = title_row, column = j+1, value = sheet.values[i-1][j])
+            elif((i%3) == 0):
+                if(j<109):
+                    ws.cell(row = title_row, column = j+5, value = 0)
                 else:
-                    ws.cell(row = i+1, column = j+5, value = binNames[j-24])
-            elif((i%3) != 1):
-                if(j<24):
-                    ws.cell(row = i+1, column = j+5, value = 0)
-                else:
-                    ws.cell(row = i+1, column = j+5, value = 0)
-        print('processing row:'+ str(i))
-        
+                    ws.cell(row = title_row, column = j+5, value = 0)
+                    title_row=title_row+1
+           
     print('---------- start finding match value ----------')
     row = 0
-    ISD_length = 0 # 'ISD' col length
+    content_row=3
     for i in range(0,len(sheet.values),3):
-        q_num = 0 # '?' number
         print('processing row: '+ str(i))
         for j in range(4,len(sheet.values[1])):
             varient_num = 0
             bin_num = 0
-            if(sheet.values[i][j] == '?'):
-                ws.cell(row = i+2, column = q_num+115, value = '?') # 115 = 4(first 4 metadata) + 24(varient_num) + 86(bin_num) + 1(this col)
-                ws.cell(row = i+3, column = q_num+115, value = sheet.values[i+1][j])
-                ws.cell(row = i+4, column = q_num+115, value = sheet.values[i+2][j])
-                q_num = q_num+1
-            elif(sheet.values[i][j] == 'ISD:'):
-                if(ISD_length < q_num+116):
-                    ISD_length = q_num+116
-                ISD_1.append(sheet.values[i+1][j]) 
-                ISD_2.append(sheet.values[i+2][j])
-            elif(sheet.values[i][j] == 'MAD:'):
-                MAD.append(sheet.values[i+1][j])
-                break
-            else:
-                for k in range(varient_num,24):
-                    if(sheet.values[i][j] == varientNames[k]):
-                        ws.cell(row = i+3, column = k+5, value = sheet.values[i+1][j])
-                        ws.cell(row = i+4, column = k+5, value = sheet.values[i+2][j])
-                        varient_num = k
+            for k in range(varient_num,24):
+                if(sheet.values[i][j] == varientNames[k]):
+                    #ws.cell(row = i+3, column = k+5, value = sheet.values[i+1][j])
+                    ws.cell(row = content_row, column = k+5, value = sheet.values[i+2][j])
+                    varient_num = k
+                    break;
+            if(k != varient_num): # if find varient_num before, no need to check bin_num
+                for k in range(bin_num,86):
+                    if(sheet.values[i][j] == binNames[k]):
+                        #ws.cell(row = i+3, column = k+29, value = sheet.values[i+1][j])
+                        ws.cell(row = content_row, column = k+29, value = sheet.values[i+2][j])
+                        bin_num = k
                         break;
-                if(k != varient_num): # if find varient_num before, no need to check bin_num
-                    for k in range(bin_num,86):
-                        if(sheet.values[i][j] == binNames[k]):
-                            ws.cell(row = i+3, column = k+29, value = sheet.values[i+1][j])
-                            ws.cell(row = i+4, column = k+29, value = sheet.values[i+2][j])
-                            bin_num = k
-                            break;
-
         row = row+1
+        content_row=content_row+1
     i = 0
-    #print(ISD_length)
-    # 將 ISD 跟 MSD 值寫入
-    for j in range(0,len(sheet.values),3):
-        ws.cell(row = j+2, column = ISD_length, value = 'ISD:')
-        ws.cell(row = j+3, column = ISD_length, value = ISD_1[i])
-        ws.cell(row = j+4, column = ISD_length, value = ISD_2[i])
-        ws.cell(row = j+2, column = ISD_length+2, value = 'MAD:')
-        ws.cell(row = j+3, column = ISD_length+2, value = MAD[i])
-        i = i+1
     print('file number '+str(work_item+1) +' is finished')
     # 儲存成 create_sample.xls 檔案
     wb.save('tmp.xls')
     data_xls = pd.read_excel('tmp.xls',index_col=None)
+    if('.csv' in files_csv[work_item]):
+        files_csv[work_item] = files_csv[work_item][:-4]
     data_xls.to_csv(files_csv[work_item]+'_排列.csv', encoding='utf-8',sep=',',index=False,header=None)
     os.remove('tmp.xls')
     work_item = work_item + 1
