@@ -48,8 +48,9 @@ for work_item in range (0,len(files_csv)):
             ws.cell(row = 2, column = j+5, value = varientNames[j])
         else:
             ws.cell(row = 2, column = j+5, value = binNames[j-24])
+    
     for i in range(1,len(sheet.values)+1):
-        print('processing row:'+ str(i))
+        #print('processing row:'+ str(i))
         for j in range(0,110):
             if((i%3) == 1):
                 if(j<4):
@@ -69,19 +70,29 @@ for work_item in range (0,len(files_csv)):
         for j in range(4,len(sheet.values[1])):
             varient_num = 0
             bin_num = 0
-            for k in range(varient_num,24):
-                if(sheet.values[i][j] == varientNames[k]):
-                    #ws.cell(row = i+3, column = k+5, value = sheet.values[i+1][j])
-                    ws.cell(row = content_row, column = k+5, value = sheet.values[i+2][j])
-                    varient_num = k
-                    break;
-            if(k != varient_num): # if find varient_num before, no need to check bin_num
-                for k in range(bin_num,86):
-                    if(sheet.values[i][j] == binNames[k]):
-                        #ws.cell(row = i+3, column = k+29, value = sheet.values[i+1][j])
-                        ws.cell(row = content_row, column = k+29, value = sheet.values[i+2][j])
-                        bin_num = k
+            if(sheet.values[i][j] == '?'):
+                # do nothing
+                pass
+            elif(sheet.values[i][j] == 'ISD:'):
+                # do nothing
+                pass
+            elif(sheet.values[i][j] == 'MAD:'):
+                # do nothing
+                pass
+            else:
+                for k in range(varient_num,24):
+                    if(sheet.values[i][j] == varientNames[k]):
+                        #ws.cell(row = i+3, column = k+5, value = sheet.values[i+1][j])
+                        ws.cell(row = content_row, column = k+5, value = sheet.values[i+2][j])
+                        varient_num = k
                         break;
+                if(k != varient_num): # if find varient_num before, no need to check bin_num
+                    for k in range(bin_num,86):
+                        if(sheet.values[i][j] == binNames[k]):
+                            #ws.cell(row = i+3, column = k+29, value = sheet.values[i+1][j])
+                            ws.cell(row = content_row, column = k+29, value = sheet.values[i+2][j])
+                            bin_num = k
+                            break;
         row = row+1
         content_row=content_row+1
     i = 0
