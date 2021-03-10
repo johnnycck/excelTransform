@@ -4,7 +4,8 @@
 pip install pandas  
 pip install openpyxl  
 pip install xlrd
+## Description
+This code will transform txt files into csv files. Firstly, it will check the nunber of m/z between 5000~12450. If the number exceeds 16384, it will check the number of m/z between 11300~12450. If it still exceeds 16384, this txt files will be ignored.
 ## Execute
-step 1. Open every target files and store as [CSV (逗號相隔) *.csv]
-step 2. Transform target files in current directory.
-step 3. python excelTransform.py
+step 1. Transform txt files in current directory to csv files.
+step 2. python excelTransform.py
