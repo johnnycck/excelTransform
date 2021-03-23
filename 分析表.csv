@@ -1,0 +1,9 @@
+,Sensitivity,Specifically,Accuracy
+CRC_EvsAll_Classification result,27.78,82.46,75
+CRC_EvsE_Classification result,33.33,78.95,72.73
+EC_EvsAll_Classification result,0,100,86.36
+EC_EvsE_Classification result,0,100,86.36
+GC_EvsAll_Classification result,44.44,66.67,63.64
+GC_EvsE_Classification result,27.78,77.19,70.45
+HCC_EvsAll_Classification result,33.33,79.82,73.48
+HCC_EvsE_Classification result,22.22,83.33,75
