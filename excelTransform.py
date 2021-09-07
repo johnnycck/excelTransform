@@ -29,7 +29,7 @@ for work_item in range (0,len(files_dir)):
     subDirFiles = os.listdir(subPath)
     cur_row = 3
     for i in range(0,len(subDirFiles)):
-        ws.cell(row = cur_row, column = work_item+1, value = subDirFiles[i][:-4]) 
+        ws.cell(row = cur_row, column = work_item+1, value = subDirFiles[i]) 
         cur_row = cur_row+1
 
     print('dir number '+str(work_item+1) +' is finished')
