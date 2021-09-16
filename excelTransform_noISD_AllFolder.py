@@ -10,6 +10,8 @@ for root, dirs, files in os.walk(path):
     files_csv = [f for f in files if f[-3:] == 'csv']
     files_csv = [f for f in files_csv if f[:6] != '【Test】']
     files_csv = [f for f in files_csv if f[:7] != '【Train】']
+    #files_csv = [f for f in files_csv if f[:6] == 'Passed' or if f[:3] == 'ISD' ]
+    #files_csv = [f for f in files_csv if f[:6] == 'Passed']
         
     if(len(files_csv) > 0):
         print('number of files: '+str(len(files_csv)))
@@ -52,7 +54,7 @@ for root, dirs, files in os.walk(path):
                 else:
                     ws.cell(row = 2, column = j+2, value = binNames[j-24])
             for i in range(1,len(sheet.values)+1):
-                print('processing row:'+ str(i))
+                #print('processing row:'+ str(i))
                 for j in range(0,110):
                     if((i%3) == 1):
                         if(j<1):
@@ -68,7 +70,7 @@ for root, dirs, files in os.walk(path):
             row = 0
             content_row=3
             for i in range(0,len(sheet.values),3):
-                print('processing row: '+ str(i))
+                #print('processing row: '+ str(i))
                 for j in range(1,len(sheet.values[1])):
                     varient_num = 0
                     bin_num = 0
@@ -92,8 +94,16 @@ for root, dirs, files in os.walk(path):
             # 儲存成 create_sample.xls 檔案
             wb.save('tmp.xls')
             data_xls = pd.read_excel('tmp.xls',index_col=None)
-            if('.csv' in files_csv[work_item]):
-                files_csv[work_item] = files_csv[work_item][:-4]
-            data_xls.to_csv(IO+'_排列.csv', encoding='utf-8',sep=',',index=False,header=None)
+            #if('.csv' in files_csv[work_item]):
+            #    files_csv[work_item] = files_csv[work_item][:-4]
+            if('.csv' in IO):
+                IO = IO[:-4]
+            csvName = 'tmp'
+            if('AllPeaks' in IO):
+                csvName = 'SAA_table_all'
+            elif('FilterPeak' in IO):
+                csvName = 'SAA_table_filt'
+            data_xls.to_csv(root+'/'+csvName+'_排列.csv', encoding='utf-8',sep=',',index=False,header=None)
+            #data_xls.to_csv(IO+'_排列.csv', encoding='utf-8',sep=',',index=False,header=None)
             os.remove('tmp.xls')
             work_item = work_item + 1
