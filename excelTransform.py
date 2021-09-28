@@ -65,7 +65,7 @@ for work_item in range (0,len(files_csv)):
             data_xls.to_csv(files_csv[work_item]+'.csv', encoding='utf-8',sep=',',index=False,header=None)
             os.remove('tmp.xls')
     else:
-        print('MZnum: '+Mznum)
+        print('MZnum: '+str(MZnum))
         # 創建一個空白活頁簿物件
         wb = Workbook()
         # 選取正在工作中的表單
