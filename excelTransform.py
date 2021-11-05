@@ -7,95 +7,113 @@ from openpyxl import Workbook
 
 path = os.getcwd()
 files = os.listdir(path)
-files_csv = [f for f in files if f[-3:] == 'txt']
-print('number of files: '+str(len(files_csv)))
-for work_item in range (0,len(files_csv)):
-    IO = files_csv[work_item]
-    #print(IO)
-    # 輸入的檔案名稱，需先轉成 xls 檔，並下移一行
-    #IO = 'SAA_table_all.csv'
-    sheet = pd.read_csv(IO,header=None,sep="\s+")
-    MZnum = 0;
-    print('---------- check number of m/z between 5000~12450 ----------')
-    for i in range(0,len(sheet[0])):
-        if(sheet[0][i] >= 5000 and sheet[0][i] <=12450):
-            MZnum = MZnum + 1
-    print('MZnum: '+str(MZnum))
-    if(MZnum > 16384):
-        MZnum = 0;
-        print('---------- check number of m/z between 11300~12450 ----------')
-        for i in range(0,len(sheet[0])):
-            if(sheet[0][i] >= 11300 and sheet[0][i] <=12450):
-                MZnum = MZnum + 1
-        if(MZnum > 16384):
-            print('MZnum: '+str(MZnum))
-            print('the number of m/z between 11300~12450 for file: '+ files_csv[work_item] +'exceed excel limitation')
-        else:
-            print('MZnum: '+str(MZnum))
-            # 創建一個空白活頁簿物件
-            wb = Workbook()
-            # 選取正在工作中的表單
-            ws = wb.active
-            # Initial title
-            batch_name = IO.split('_')
-            titles = ['All Patient Data', batch_name[0], IO[:-4]]
+files_txt = [f for f in files if f[-3:] == 'txt']
+print('number of files: '+str(len(files_txt)))
 
-            ws.cell(row = 1, column = 1, value = "test")
-            print('---------- assign title ----------')
-            # assign title
-            for i in range(0,3):
-                ws.cell(row = 2, column = i+1, value = titles[i])
-                ws.cell(row = 3, column = i+1, value = titles[i])
-            
-            print('---------- start transposing content ----------')
-            col_num = 4
-            for i in range(3,len(sheet[0])+2):
-                if(sheet[0][i-3] >= 11300 and sheet[0][i-3] <=12450):
-                    ws.cell(row = 2, column = col_num, value = round(sheet[0][i-3],1))
-                    ws.cell(row = 3, column = col_num, value = sheet[1][i-3])
-                    col_num = col_num + 1
-            print('file number '+str(work_item+1) +' is finished')
-            
-            # 儲存成 create_sample.xls 檔案
-            wb.save('tmp.xls')
-    
-            data_xls = pd.read_excel('tmp.xls',index_col=None)
-            if('.txt' in files_csv[work_item]):
-                files_csv[work_item] = files_csv[work_item][:-4]
-            data_xls.to_csv(files_csv[work_item]+'.csv', encoding='utf-8',sep=',',index=False,header=None)
-            os.remove('tmp.xls')
-    else:
-        print('MZnum: '+str(MZnum))
-        # 創建一個空白活頁簿物件
-        wb = Workbook()
-        # 選取正在工作中的表單
-        ws = wb.active
-        # Initial title
-        batch_name = IO.split('_')
-        titles = ['All Patient Data', batch_name[0], IO[:-4]]
+criterion = ['TP', 'TN', 'TP+TN', 'PPV', 'NPV', 'Accuracy', 'Sensitivity', 'Specificity']
+criterion_num = 8
+print('number of criterion: '+str(criterion_num))
 
-        ws.cell(row = 1, column = 1, value = "test")
-        print('---------- assign title ----------')
-        # assign title
-        for i in range(0,3):
-            ws.cell(row = 2, column = i+1, value = titles[i])
-            ws.cell(row = 3, column = i+1, value = titles[i])
-            
-        print('---------- start transposing content ----------')
-        col_num = 4
-        for i in range(3,len(sheet[0])+2):
-            if(sheet[0][i-3] >= 5000 and sheet[0][i-3] <=12450):
-                ws.cell(row = 2, column = col_num, value = round(sheet[0][i-3],1))
-                ws.cell(row = 3, column = col_num, value = sheet[1][i-3])
-                col_num = col_num+1
-        print('file number '+str(work_item+1) +' is finished')
-            
-        # 儲存成 create_sample.xls 檔案
-        wb.save('tmp.xls')
+# initial user_command criterion list
+criterion_user_input = []
+criterion_user_input = [[0]*2 for i in range(8)]
+for i in range(0, criterion_num):
+    criterion_user_input[i][0] = criterion[i]
+    criterion_user_input[i][1] = -1
+# type user command from stdin
+print('Please type your criterion, type **-1** for not specifying this criterion:')
+for i in range(0, criterion_num):
+    criterion_user_input[i][1] = input(criterion[i] + ': ')
+
+# only deal with real criterion(not -1)
+target_criterion = []
+target_criterion_num = 0
+for i in range(0, criterion_num):
+    if(not('-1' in criterion_user_input[i][1])):
+        target_criterion.append(i)
+        target_criterion_num += 1
+if(target_criterion_num == 0):
+    quit()
+# create an empty work sheet
+wb = Workbook()
+# select active sheet
+ws = wb.active
+# Initial tmp title, which will be deleted when creating real output csv
+ws.cell(row = 1, column = 1, value = "test")
+# Initial title
+ws.cell(row = 2, column = 1, value = "檔名")
+ws.cell(row = 2, column = 2, value = "Threshold")
+
+for col in range(0,criterion_num):
+    ws.cell(row = 2, column = col+3, value = criterion[col])
+
+cur_row = 3
+for work_item in range (0,len(files_txt)):
+    IO = files_txt[work_item]
+    sheet = open(IO)
+    # initial txt file info
+    file_row_num = 0
+    file_text = []
+    for line in sheet:
+        file_text.append(line)
+        file_row_num += 1
+    # dec. file_row_num for empty line
+    for i in range(file_row_num-1, 0, -1):
+        if('|' in file_text[i]):
+            file_row_num = i
+            break
     
-        data_xls = pd.read_excel('tmp.xls',index_col=None)
-        if('.txt' in files_csv[work_item]):
-            files_csv[work_item] = files_csv[work_item][:-4]
-        data_xls.to_csv(files_csv[work_item]+'.csv', encoding='utf-8',sep=',',index=False,header=None)
-        os.remove('tmp.xls')
+    # classify text into items
+    file_textbox = [[0]*9 for i in range(file_row_num-3)]
+    row = 0
+    for i in range(4, file_row_num+1):
+        lastk = k = 1; # skip first '|'
+        for j in range(0, 9):
+            while(1):
+                if(file_text[i][k] == ' '):
+                    k += 1
+                else:
+                    break
+            lastk = k
+            while(1):
+                if(file_text[i][k] != ' '):
+                    k += 1
+                else:
+                    break
+            file_textbox[row][j] = file_text[i][lastk:k]
+            while(1):
+                if(file_text[i][k] == ' '):
+                    k += 1
+                else:
+                    break
+            k += 1
+        row += 1
+    file_row_num -= 3
+    # find match criterion and store to csv file
+    file_row_pass = True
+    for i in range(0, file_row_num):
+        file_row_pass = True
+        for j in range(0, target_criterion_num):
+            if(float(criterion_user_input[target_criterion[j]][1]) >= 0):
+                if(float(file_textbox[i][target_criterion[j]+1]) <= float(criterion_user_input[target_criterion[j]][1])):
+                    file_row_pass = False
+                    break
+            else:
+                if(float(file_textbox[i][target_criterion[j]+1]) >= float(criterion_user_input[target_criterion[j]][1])):
+                    file_row_pass = False
+                    break
+        if(file_row_pass == True):
+            col = 1
+            ws.cell(row = cur_row, column = 1, value = IO[:-4])
+            for k in range(0,9):
+                ws.cell(row = cur_row, column = col+1, value = file_textbox[i][col-1])
+                col += 1
+            cur_row += 1
     work_item = work_item + 1
+# store as tmp xls file first
+wb.save('tmp.xls')
+
+# transform xls to csv
+data_xls = pd.read_excel('tmp.xls',index_col=None)
+data_xls.to_csv('output.csv', encoding='ANSI',sep=',',index=False,header=None)
+os.remove('tmp.xls')
