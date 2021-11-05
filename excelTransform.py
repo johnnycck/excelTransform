@@ -21,7 +21,7 @@ for i in range(0, criterion_num):
     criterion_user_input[i][0] = criterion[i]
     criterion_user_input[i][1] = -1
 # type user command from stdin
-print('Please type your criterion, type **-1** for not specifying this criterion:')
+print('Please type your criterion, type **00** for not specifying this criterion:')
 for i in range(0, criterion_num):
     criterion_user_input[i][1] = input(criterion[i] + ': ')
 
@@ -29,7 +29,7 @@ for i in range(0, criterion_num):
 target_criterion = []
 target_criterion_num = 0
 for i in range(0, criterion_num):
-    if(not('-1' in criterion_user_input[i][1])):
+    if(not('00' in criterion_user_input[i][1])):
         target_criterion.append(i)
         target_criterion_num += 1
 if(target_criterion_num == 0):
@@ -99,7 +99,7 @@ for work_item in range (0,len(files_txt)):
                     file_row_pass = False
                     break
             else:
-                if(float(file_textbox[i][target_criterion[j]+1]) >= float(criterion_user_input[target_criterion[j]][1])):
+                if(float(file_textbox[i][target_criterion[j]+1]) >= abs(float(criterion_user_input[target_criterion[j]][1]))):
                     file_row_pass = False
                     break
         if(file_row_pass == True):
