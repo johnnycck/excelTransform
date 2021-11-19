@@ -6,7 +6,7 @@
 * `pip install xlrd`
 ## Description
 This code will transform several txt files into one csv file  
-txt file formats is statically defined in the code  
+the format of txt file is statically defined in the code  
 txt formats:  
 ```
 +------------------+-----------------------------+  
