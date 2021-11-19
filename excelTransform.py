@@ -10,30 +10,9 @@ files = os.listdir(path)
 files_txt = [f for f in files if f[-3:] == 'txt']
 print('number of files: '+str(len(files_txt)))
 
-criterion = ['TP', 'TN', 'TP+TN', 'PPV', 'NPV', 'Accuracy', 'Sensitivity', 'Specificity']
-criterion_num = 8
-print('number of criterion: '+str(criterion_num))
+criterion = ['GC(GC)', 'GC(non-GC)', 'GC(KN)', 'non-GC(GC)', 'non-GC(non-GC)', 'non-GC(KN)', 'KN(GC)', 'KN(non-GC)', 'KN(KN)']
+criterion_num = 9
 
-# initial user_command criterion list
-criterion_user_input = []
-criterion_user_input = [[0]*2 for i in range(8)]
-for i in range(0, criterion_num):
-    criterion_user_input[i][0] = criterion[i]
-    criterion_user_input[i][1] = -1
-# type user command from stdin
-print('Please type your criterion, type **00** for not specifying this criterion:')
-for i in range(0, criterion_num):
-    criterion_user_input[i][1] = input(criterion[i] + ': ')
-
-# only deal with real criterion(not -1)
-target_criterion = []
-target_criterion_num = 0
-for i in range(0, criterion_num):
-    if(not('00' in criterion_user_input[i][1])):
-        target_criterion.append(i)
-        target_criterion_num += 1
-if(target_criterion_num == 0):
-    quit()
 # create an empty work sheet
 wb = Workbook()
 # select active sheet
@@ -46,8 +25,8 @@ ws.cell(row = 2, column = 2, value = "Threshold")
 
 for col in range(0,criterion_num):
     ws.cell(row = 2, column = col+3, value = criterion[col])
-
 cur_row = 3
+
 for work_item in range (0,len(files_txt)):
     IO = files_txt[work_item]
     sheet = open(IO)
@@ -62,57 +41,51 @@ for work_item in range (0,len(files_txt)):
         if('|' in file_text[i]):
             file_row_num = i
             break
+    # retrieve 'GC' info
+    row1 = file_text[file_row_num-4]
+    # retrieve 'non-GC' info
+    row2 = file_text[file_row_num-2]
+    # retrieve 'KN' info
+    row3 = file_text[file_row_num]
+    output = [[0]*3 for i in range(0,9)]
+    # 19, 29, 39, 49 means '|' index of the row
+    # need to get digit between '|' and '|'
+
+    # retrieve 'GC' info
+    output[0] = [f for f in row1[19:29] if f.isdigit()]
+    output[1] = [f for f in row1[29:39] if f.isdigit()]
+    output[2] = [f for f in row1[39:49] if f.isdigit()]
+    # retrieve 'non-GC' info
+    output[3] = [f for f in row2[19:29] if f.isdigit()]
+    output[4] = [f for f in row2[29:39] if f.isdigit()]
+    output[5] = [f for f in row2[39:49] if f.isdigit()]
+    # retrieve 'KN' info
+    output[6] = [f for f in row3[19:29] if f.isdigit()]
+    output[7] = [f for f in row3[29:39] if f.isdigit()]
+    output[8] = [f for f in row3[39:49] if f.isdigit()]
     
-    # classify text into items
-    file_textbox = [[0]*9 for i in range(file_row_num-3)]
-    row = 0
-    for i in range(4, file_row_num+1):
-        lastk = k = 1; # skip first '|'
-        for j in range(0, 9):
-            while(1):
-                if(file_text[i][k] == ' '):
-                    k += 1
-                else:
-                    break
-            lastk = k
-            while(1):
-                if(file_text[i][k] != ' '):
-                    k += 1
-                else:
-                    break
-            file_textbox[row][j] = file_text[i][lastk:k]
-            while(1):
-                if(file_text[i][k] == ' '):
-                    k += 1
-                else:
-                    break
-            k += 1
-        row += 1
-    file_row_num -= 3
-    # find match criterion and store to csv file
-    file_row_pass = True
-    for i in range(0, file_row_num):
-        file_row_pass = True
-        for j in range(0, target_criterion_num):
-            if(float(criterion_user_input[target_criterion[j]][1]) >= 0):
-                if(float(file_textbox[i][target_criterion[j]+1]) <= float(criterion_user_input[target_criterion[j]][1])):
-                    file_row_pass = False
-                    break
-            else:
-                if(float(file_textbox[i][target_criterion[j]+1]) >= abs(float(criterion_user_input[target_criterion[j]][1]))):
-                    file_row_pass = False
-                    break
-        if(file_row_pass == True):
-            col = 1
-            ws.cell(row = cur_row, column = 1, value = IO[:-4])
-            for k in range(0,9):
-                ws.cell(row = cur_row, column = col+1, value = file_textbox[i][col-1])
-                col += 1
-            cur_row += 1
+    # merge digit into integer
+    for i in range(0,9):
+        if(len(output[i]) == 1):
+            output[i] = output[i][0]
+        if(len(output[i]) == 2):
+            output[i] = output[i][0] + output[i][1]
+        if(len(output[i]) == 3):
+            output[i] = output[i][0] + output[i][1] + output[i][2]
+    
+    # write output
+    ws.cell(row = cur_row, column = 1, value = IO[:-15])
+    ws.cell(row = cur_row, column = 2, value = IO[-15:-4])
+    ws.cell(row = cur_row, column = i+3, value = output[i])
+    for i in range(0,9):
+        ws.cell(row = cur_row, column = i+3, value = output[i])
+    
+    cur_row += 1
     work_item = work_item + 1
+    print('finish file:'+str(work_item))
+
 # store as tmp xls file first
 wb.save('tmp.xls')
-
 # transform xls to csv
 data_xls = pd.read_excel('tmp.xls',index_col=None)
 data_xls.to_csv('output.csv', encoding='ANSI',sep=',',index=False,header=None)
