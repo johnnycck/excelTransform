@@ -1,3 +1,0 @@
-¿…¶W,Threshold,GC(GC),GC(non-GC),GC(KN),non-GC(GC),non-GC(non-GC),non-GC(KN),KN(GC),KN(non-GC),KN(KN)
-°iTest°jConfusionMatrix[702],"(0.20,0.25)",46,19,22,54,69,110,34,35,76
-°iTrain°jConfusionMatrix[950],"(0.80,0.90)",8,4,59,0,0,242,0,0,123
