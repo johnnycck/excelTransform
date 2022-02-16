@@ -12,42 +12,36 @@ files = os.listdir(path)
 input_xlsx = pd.read_excel('input.xlsx')
 input = input_xlsx.values
 target = []
-target_name = []
 target.append(1)
-target_name.append(1)
-n_rows, n_cols = input.shape
-for i in range(0,n_rows):
-    target[i] = input[i][1]
-    target_name[i] = 0
-    if i != n_rows-1:
-        target.append(1)
-        target_name.append(1)
+FALSE = 0
+TRUE = 1
+ifFID = TRUE
+i = 0
 path = path + '\\source'
+wb = Workbook()
+ws = wb.active
+ws.cell(row = 1, column = 1, value = "test")
+ws.cell(row = 2, column = 1, value = "missing file `fid`")
+cur_row = 3
+target_name = 'tmp'
 for root, dir, file in os.walk(path):
     if os.path.basename(root) == '.git':
         dir[:] = []
     elif os.path.basename(root) == 'target':
         dir[:] = []
+    elif os.path.basename(root) == '24 SAA + 50 bins':
+        dir[:] = []
     else:
         if os.path.basename(root) != path:
+            if ("ISD" in os.path.basename(root)):
+                if(ifFID == FALSE):
+                    ws.cell(row = cur_row, column = 1, value = target_name)
+                    cur_row = cur_row+1
+                target_name = os.path.basename(root)
+                ifFID = FALSE
             for f in file:
-                for i in range(0, n_rows):
-                    if (target[i] in f):
-                        #print(f)
-                        print(root)
-                        s_path = root + '\\' + f
-                        t_file = t_path + '\\' + f
-                        shutil.copy(s_path, t_file)
-                    target_name[i] = 1
-wb = Workbook()
-ws = wb.active
-ws.cell(row = 1, column = 1, value = "test")
-ws.cell(row = 2, column = 1, value = "missing dir name")
-cur_row = 3
-for i in range(0, n_rows):
-    if(target_name[i] == 0):
-        ws.cell(row = cur_row, column = 1, value = target[i]) 
-        cur_row = cur_row+1
+                if ('fid' in f):
+                    ifFID = TRUE
         
 wb.save('tmp.xls')
 data_xls = pd.read_excel('tmp.xls',index_col=None)
