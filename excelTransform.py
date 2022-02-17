@@ -16,6 +16,7 @@ target.append(1)
 FALSE = 0
 TRUE = 1
 ifFID = TRUE
+ifACQU = TRUE
 i = 0
 path = path + '\\source'
 wb = Workbook()
@@ -37,11 +38,17 @@ for root, dir, file in os.walk(path):
                 if(ifFID == FALSE):
                     ws.cell(row = cur_row, column = 1, value = target_name)
                     cur_row = cur_row+1
+                if(ifACQU == FALSE):
+                    ws.cell(row = cur_row, column = 1, value = target_name)
+                    cur_row = cur_row+1
                 target_name = os.path.basename(root)
                 ifFID = FALSE
+                ifACQU = FALSE
             for f in file:
                 if ('fid' in f):
                     ifFID = TRUE
+                if ('acqu' == f):
+                    ifACQU = TRUE
         
 wb.save('tmp.xls')
 data_xls = pd.read_excel('tmp.xls',index_col=None)
