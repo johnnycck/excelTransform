@@ -40,7 +40,7 @@ for root, dir, file in os.walk(path):
         if os.path.basename(root) != path:
             for f in dir:
                 for i in range(0, n_rows):
-                    if (target[i] in f):
+                    if (target[i] == f[:2]):
                         s_path = root + '\\' + f
                         t_file = t_path + '\\' + f
                         ifFID = FALSE
@@ -51,7 +51,7 @@ for root, dir, file in os.walk(path):
                                     if(fi == 'fid'):
                                         ifFID = TRUE
                                     if(fi == 'acqu'):
-                                        ifFID = TRUE
+                                        ifACQU = TRUE
                         if(ifFID == TRUE and ifACQU == TRUE):
                             al_copy = 0
                             for iter_dir in range(0, n_dir):
