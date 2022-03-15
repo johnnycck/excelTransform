@@ -46,6 +46,9 @@ for work_item in range (0,len(files_csv)):
             ws.cell(row = 2, column = j+2, value = varientNames[j])
         else:
             ws.cell(row = 2, column = j+2, value = binNames[j-24])
+    ws.cell(row = 2, column = 112, value = 'ISD')
+    ws.cell(row = 2, column = 113, value = 'MAD1')
+    ws.cell(row = 2, column = 114, value = 'MAD2')
     for i in range(1,len(sheet.values)+1):
         print('processing row:'+ str(i))
         for j in range(0,110):
@@ -53,10 +56,8 @@ for work_item in range (0,len(files_csv)):
                 if(j<1):
                     ws.cell(row = title_row, column = j+1, value = sheet.values[i-1][j])
             elif((i%3) == 0):
-                if(j<109):
-                    ws.cell(row = title_row, column = j+2, value = 0)
-                else:
-                    ws.cell(row = title_row, column = j+2, value = 0)
+                ws.cell(row = title_row, column = j+2, value = 0)
+                if(j==109):
                     title_row=title_row+1
            
     print('---------- start finding match value ----------')
@@ -80,6 +81,13 @@ for work_item in range (0,len(files_csv)):
                         ws.cell(row = content_row, column = k+26, value = sheet.values[i+2][j])
                         bin_num = k
                         break;
+            if(sheet.values[i][j] == 'ISD'):
+                ws.cell(row = content_row, column = 112, value = sheet.values[i+2][j])
+            if(sheet.values[i][j] == 'MAD1'):
+                ws.cell(row = content_row, column = 113, value = sheet.values[i+1][j])
+            if(sheet.values[i][j] == 'MAD2'):
+                ws.cell(row = content_row, column = 114, value = sheet.values[i+1][j])
+            
         row = row+1
         content_row=content_row+1
     i = 0
