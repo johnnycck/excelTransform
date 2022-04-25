@@ -53,11 +53,10 @@ for work_item in range (0,len(files_csv)):
                 if(j<1):
                     ws.cell(row = title_row, column = j+1, value = sheet.values[i-1][j])
             elif((i%3) == 0):
-                if(j<109):
-                    ws.cell(row = title_row, column = j+2, value = 0)
-                else:
-                    ws.cell(row = title_row, column = j+2, value = 0)
-                    title_row=title_row+1
+                ws.cell(row = title_row, column = j+2, value = 0)
+                ws.cell(row = title_row+1, column = j+2, value = 0)
+                if(j>=109):
+                    title_row=title_row+2
            
     print('---------- start finding match value ----------')
     row = 0
@@ -70,18 +69,20 @@ for work_item in range (0,len(files_csv)):
             for k in range(varient_num,24):
                 if(sheet.values[i][j] == varientNames[k]):
                     #ws.cell(row = i+3, column = k+2, value = sheet.values[i+1][j])
-                    ws.cell(row = content_row, column = k+2, value = sheet.values[i+2][j])
+                    ws.cell(row = content_row, column = k+2, value = sheet.values[i+1][j])
+                    ws.cell(row = content_row+1, column = k+2, value = sheet.values[i+2][j])
                     varient_num = k
                     break;
             if(k != varient_num): # if find varient_num before, no need to check bin_num
                 for k in range(bin_num,86):
                     if(sheet.values[i][j] == binNames[k]):
                         #ws.cell(row = i+3, column = k+26, value = sheet.values[i+1][j])
-                        ws.cell(row = content_row, column = k+26, value = sheet.values[i+2][j])
+                        ws.cell(row = content_row, column = k+26, value = sheet.values[i+1][j])
+                        ws.cell(row = content_row+1, column = k+26, value = sheet.values[i+2][j])
                         bin_num = k
                         break;
         row = row+1
-        content_row=content_row+1
+        content_row=content_row+2
     i = 0
     print('file number '+str(work_item+1) +' is finished')
     # 儲存成 create_sample.xls 檔案
