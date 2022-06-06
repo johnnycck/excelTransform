@@ -28,9 +28,34 @@ for work_item in range (0,len(files_dir)):
     subPath = path + '/' + IO
     subDirFiles = os.listdir(subPath)
     cur_row = 3
+    old_dir = []
+    old_dir.append(1)
+    cnt = 0
     for i in range(0,len(subDirFiles)):
-        ws.cell(row = cur_row, column = work_item+1, value = subDirFiles[i]) 
+        firstDashIndex = subDirFiles[i].index('_')
+        tmp_front = subDirFiles[i][:firstDashIndex]
+        if (subDirFiles[i][-3:] == 'csv'):
+            tmp_back = subDirFiles[i][firstDashIndex:-4]
+        else:
+            tmp_back = subDirFiles[i][-2:]
+        tmp = tmp_front + tmp_back
+        print(tmp)
+        '''
+        hasDuplicate = 0
+        for j in range(0,cnt-1):
+            if(tmp == old_dir[j]):
+                hasDuplicate = 1
+                break
+        if(hasDuplicate):
+        '''
+        #ws.cell(row = cur_row, column = work_item+1, value = subDirFiles[i])
+        ws.cell(row = cur_row, column = work_item+1, value = tmp)
         cur_row = cur_row+1
+        #else:
+        #    old_dir[cnt] = tmp
+        #    old_dir.append(1)
+        #    cnt = cnt + 1
+
 
     print('dir number '+str(work_item+1) +' is finished')
     work_item = work_item + 1
