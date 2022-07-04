@@ -7,12 +7,12 @@ from openpyxl import Workbook
 
 path = os.getcwd()
 files = os.listdir(path)
-files_csv = [f for f in files if f[-3:] == 'csv']
+files_csv = [f for f in files if f[-9:] == '排列_P.xlsx']
 print('number of files: '+str(len(files_csv)))
 for work_item in range (0,len(files_csv)):
     IO = files_csv[work_item]
     #IO = 'SAA_table_all.csv'
-    sheet = pd.read_csv(IO,header=None,sep=",")
+    sheet = pd.read_excel(IO,header=None)
     # 創建一個空白活頁簿物件
     wb = Workbook()
     # 選取正在工作中的表單
@@ -33,14 +33,14 @@ for work_item in range (0,len(files_csv)):
     MAD = []
     print('file maximum rows: '+str(len(sheet.values)))
     ws.cell(row = 1, column = 1, value = "test")
-    print('---------- assign title and initialize value ----------')
     # assign title and initialize value
     #for i in range(1,len(sheet.values)+1):
     #    print('processing row:'+ str(i))
     #    if ((i%3) == 1):
     #        for j in range (0,4):
     #            ws.cell(row = i+1, column = j+1, value = sheet.values[i-1][j])
-    title_row=3
+    
+    '''
     for j in range(0,110):
         if(j<24):
             ws.cell(row = 2, column = j+2, value = varientNames[j])
@@ -49,54 +49,44 @@ for work_item in range (0,len(files_csv)):
     ws.cell(row = 2, column = 112, value = 'ISD')
     ws.cell(row = 2, column = 113, value = 'MAD1')
     ws.cell(row = 2, column = 114, value = 'MAD2')
-    for i in range(1,len(sheet.values)+1):
-        print('processing row:'+ str(i))
-        for j in range(0,110):
-            if((i%3) == 1):
-                if(j<1):
-                    ws.cell(row = title_row, column = j+1, value = sheet.values[i-1][j])
-            elif((i%3) == 0):
-                ws.cell(row = title_row, column = j+2, value = 0)
-                if(j==109):
-                    title_row=title_row+1
-           
-    print('---------- start finding match value ----------')
-    row = 0
-    content_row=3
-    for i in range(0,len(sheet.values),3):
-        print('processing row: '+ str(i))
-        for j in range(1,len(sheet.values[1])):
-            varient_num = 0
-            bin_num = 0
-            for k in range(varient_num,24):
-                if(sheet.values[i][j] == varientNames[k]):
-                    #ws.cell(row = i+3, column = k+2, value = sheet.values[i+1][j])
-                    ws.cell(row = content_row, column = k+2, value = sheet.values[i+2][j])
-                    varient_num = k
-                    break;
-            if(k != varient_num): # if find varient_num before, no need to check bin_num
-                for k in range(bin_num,86):
-                    if(sheet.values[i][j] == binNames[k]):
-                        #ws.cell(row = i+3, column = k+26, value = sheet.values[i+1][j])
-                        ws.cell(row = content_row, column = k+26, value = sheet.values[i+2][j])
-                        bin_num = k
-                        break;
-            if(sheet.values[i][j] == 'ISD'):
-                ws.cell(row = content_row, column = 112, value = sheet.values[i+2][j])
-            if(sheet.values[i][j] == 'MAD1'):
-                ws.cell(row = content_row, column = 113, value = sheet.values[i+1][j])
-            if(sheet.values[i][j] == 'MAD2'):
-                ws.cell(row = content_row, column = 114, value = sheet.values[i+1][j])
-            
-        row = row+1
-        content_row=content_row+1
+    '''
+    # assign title
+    title_row=2
+    for i in range(2,len(sheet.values)+1):
+        ws.cell(row = title_row, column = 1, value = sheet.values[i-1][0])
+        title_row=title_row+2
+    # find existed peak
+    row_num=2
+    for i in range(2,len(sheet.values)+1):
+        j = 0
+        col_num = 2
+        # find existed peak and bin
+        for j in range(1,110):
+            if (sheet.values[i-1][j] != 0):
+                if (j < 25):
+                    ws.cell(row = row_num, column = col_num, value = varientNames[j-1])
+                else:
+                    ws.cell(row = row_num, column = col_num, value = binNames[j-24-1])
+                ws.cell(row = row_num+1, column = col_num, value = sheet.values[i-1][j])
+                col_num = col_num + 1
+        # find existed ISD and MAD
+        col_num = col_num + 1
+        ws.cell(row = row_num, column = col_num, value = 'ISD')
+        ws.cell(row = row_num + 1, column = col_num, value = sheet.values[i-1][112])
+        col_num = col_num + 1
+        ws.cell(row = row_num, column = col_num, value = 'MAD1')
+        ws.cell(row = row_num + 1, column = col_num, value = sheet.values[i-1][113])
+        col_num = col_num + 1
+        ws.cell(row = row_num, column = col_num, value = 'MAD2')
+        ws.cell(row = row_num + 1, column = col_num, value = sheet.values[i-1][114])
+        row_num = row_num + 2
     i = 0
     print('file number '+str(work_item+1) +' is finished')
     # 儲存成 create_sample.xls 檔案
     wb.save('tmp.xls')
     data_xls = pd.read_excel('tmp.xls',index_col=None)
-    if('.csv' in files_csv[work_item]):
-        files_csv[work_item] = files_csv[work_item][:-4]
-    data_xls.to_csv(files_csv[work_item]+'_排列.csv', encoding='utf-8',sep=',',index=False,header=None)
+    if('排列_P.xlsx' in files_csv[work_item]):
+        files_csv[work_item] = files_csv[work_item][:-10]
+    data_xls.to_csv(files_csv[work_item]+'.csv', encoding='utf-8',sep=',',index=False,header=None)
     os.remove('tmp.xls')
     work_item = work_item + 1
