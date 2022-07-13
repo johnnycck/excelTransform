@@ -7,7 +7,7 @@ from openpyxl import Workbook
 
 path = os.getcwd()
 files = os.listdir(path)
-files_csv = [f for f in files if f[-9:] == '排列_P.xlsx']
+files_csv = [f for f in files if f[-7:] == '_P.xlsx']
 print('number of files: '+str(len(files_csv)))
 for work_item in range (0,len(files_csv)):
     IO = files_csv[work_item]
@@ -54,7 +54,7 @@ for work_item in range (0,len(files_csv)):
     title_row=2
     for i in range(2,len(sheet.values)+1):
         ws.cell(row = title_row, column = 1, value = sheet.values[i-1][0])
-        title_row=title_row+2
+        title_row=title_row+3
     # find existed peak
     row_num=2
     for i in range(2,len(sheet.values)+1):
@@ -67,26 +67,26 @@ for work_item in range (0,len(files_csv)):
                     ws.cell(row = row_num, column = col_num, value = varientNames[j-1])
                 else:
                     ws.cell(row = row_num, column = col_num, value = binNames[j-24-1])
-                ws.cell(row = row_num+1, column = col_num, value = sheet.values[i-1][j])
+                ws.cell(row = row_num+2, column = col_num, value = sheet.values[i-1][j])
                 col_num = col_num + 1
         # find existed ISD and MAD
         col_num = col_num + 1
         ws.cell(row = row_num, column = col_num, value = 'ISD')
-        ws.cell(row = row_num + 1, column = col_num, value = sheet.values[i-1][112])
+        ws.cell(row = row_num + 2, column = col_num, value = sheet.values[i-1][112])
         col_num = col_num + 1
         ws.cell(row = row_num, column = col_num, value = 'MAD1')
-        ws.cell(row = row_num + 1, column = col_num, value = sheet.values[i-1][113])
+        ws.cell(row = row_num + 2, column = col_num, value = sheet.values[i-1][113])
         col_num = col_num + 1
         ws.cell(row = row_num, column = col_num, value = 'MAD2')
-        ws.cell(row = row_num + 1, column = col_num, value = sheet.values[i-1][114])
-        row_num = row_num + 2
+        ws.cell(row = row_num + 2, column = col_num, value = sheet.values[i-1][114])
+        row_num = row_num + 3
     i = 0
     print('file number '+str(work_item+1) +' is finished')
     # 儲存成 create_sample.xls 檔案
     wb.save('tmp.xls')
     data_xls = pd.read_excel('tmp.xls',index_col=None)
-    if('排列_P.xlsx' in files_csv[work_item]):
-        files_csv[work_item] = files_csv[work_item][:-10]
+    if('_P.xlsx' in files_csv[work_item]):
+        files_csv[work_item] = files_csv[work_item][:-8]
     data_xls.to_csv(files_csv[work_item]+'.csv', encoding='utf-8',sep=',',index=False,header=None)
     os.remove('tmp.xls')
     work_item = work_item + 1
