@@ -1,14 +1,18 @@
+from pickletools import decimalnl_long
+from unicodedata import decimal
 import pandas as pd
 import math
 import os
 import numpy as np
 import openpyxl
 from openpyxl import Workbook
-
+from decimal import Decimal, ROUND_HALF_UP
 path = os.getcwd()
 files = os.listdir(path)
 files_csv = [f for f in files if f[-3:] == 'txt']
+tmp_mz = 1.1
 print('number of files: '+str(len(files_csv)))
+
 for work_item in range (0,len(files_csv)):
     IO = files_csv[work_item]
     #print(IO)
@@ -51,7 +55,9 @@ for work_item in range (0,len(files_csv)):
             col_num = 4
             for i in range(3,len(sheet[0])+2):
                 if(sheet[0][i-3] >= 11300 and sheet[0][i-3] <=12450):
-                    ws.cell(row = 2, column = col_num, value = round(sheet[0][i-3],1))
+                    tmp_mz = Decimal(str(sheet[0][i-3])).quantize(Decimal('.1'), rounding=ROUND_HALF_UP)
+                    ws.cell(row = 2, column = col_num, value = tmp_mz)
+                    #ws.cell(row = 2, column = col_num, value = np.round(float(sheet[0][i-3]),1))
                     ws.cell(row = 3, column = col_num, value = sheet[1][i-3])
                     col_num = col_num + 1
             print('file number '+str(work_item+1) +' is finished')
@@ -85,6 +91,8 @@ for work_item in range (0,len(files_csv)):
         col_num = 4
         for i in range(3,len(sheet[0])+2):
             if(sheet[0][i-3] >= 5000 and sheet[0][i-3] <=12450):
+                print(sheet[0][i-3])
+                print('dsd')
                 ws.cell(row = 2, column = col_num, value = round(sheet[0][i-3],1))
                 ws.cell(row = 3, column = col_num, value = sheet[1][i-3])
                 col_num = col_num+1
