@@ -7,49 +7,34 @@ from openpyxl import Workbook
 import shutil
 
 path = os.getcwd()
-t_path = path + '\\target'
 files = os.listdir(path)
-input_xlsx = pd.read_excel('input.xlsx')
-input = input_xlsx.values
-target = []
-target_name = []
-target.append(1)
-target_name.append(1)
-n_rows, n_cols = input.shape
-for i in range(0,n_rows):
-    target[i] = input[i][1]
-    target_name[i] = 0
-    if i != n_rows-1:
-        target.append(1)
-        target_name.append(1)
-path = path + '\\source'
-for root, dir, file in os.walk(path):
-    if os.path.basename(root) == '.git':
-        dir[:] = []
-    elif os.path.basename(root) == 'target':
-        dir[:] = []
-    else:
-        if os.path.basename(root) != path:
-            for f in file:
-                for i in range(0, n_rows):
-                    if (target[i] in f):
-                        #print(f)
-                        print(root)
-                        s_path = root + '\\' + f
-                        t_file = t_path + '\\' + f
-                        shutil.copy(s_path, t_file)
-                    target_name[i] = 1
-wb = Workbook()
-ws = wb.active
-ws.cell(row = 1, column = 1, value = "test")
-ws.cell(row = 2, column = 1, value = "missing dir name")
-cur_row = 3
-for i in range(0, n_rows):
-    if(target_name[i] == 0):
-        ws.cell(row = cur_row, column = 1, value = target[i]) 
-        cur_row = cur_row+1
-        
-wb.save('tmp.xls')
-data_xls = pd.read_excel('tmp.xls',index_col=None)
-data_xls.to_csv('missing dir.csv', encoding='utf-8',sep=',',index=False,header=None)
-os.remove('tmp.xls')
+files_xlsx = [f for f in files if f[-4:] == 'xlsx']
+print('number of files: '+str(len(files_xlsx)))
+# 批次處理同資料夾內的所有 csv 檔
+for work_item in range (0,len(files_xlsx)):
+    wb = Workbook()
+    ws = wb.active
+    IO = files_xlsx[work_item]
+    sheet = pd.read_excel(IO)
+    ws.cell(row = 1, column = 1, value = 'm/z')
+    ws.cell(row = 1, column = 2, value = 'intensity')
+    row_cnt = 2
+    acl = sheet.values[0][1]
+    acl_row = 1
+    for i in range(1,len(sheet.values)):
+        if (sheet.values[i][0] != sheet.values[i-1][0]):
+            ws.cell(row = row_cnt, column = 1, value = sheet.values[i-1][0])
+            ws.cell(row = row_cnt, column = 2, value = acl/acl_row)
+            acl = sheet.values[i][1]
+            acl_row = 1
+            row_cnt = row_cnt + 1
+        else:
+            acl = acl + sheet.values[i][1]
+            acl_row = acl_row + 1
+    
+    ws.cell(row = row_cnt, column = 1, value = sheet.values[len(sheet.values)-1][0])
+    ws.cell(row = row_cnt, column = 2, value = acl/acl_row)
+    # 存檔並刪除舊的 CSV
+    print('\nfile number '+str(work_item+1) +' has finished')
+    wb.save(IO[:-5] + '_even.xlsx')
+    work_item = work_item + 1
